@@ -8,7 +8,10 @@ const Actions = require('./src/server/actions')
 const app = express();
 
 var server = http.createServer(app),
-    primus = new Primus(server, {transformer: 'uws'});
+  primus = new Primus(server, {
+    transformer: 'uws',
+    parser: 'msgpack'
+  });
 
 var actions = Actions(primus);
 

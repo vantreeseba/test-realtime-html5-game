@@ -39,7 +39,7 @@ let foo = new Demo('test', function(dt){
   });
 });
 
-foo.players = [];
+foo.players = new Map();
 foo.pendingInputs = [];
 foo.inputNum = 0;
 foo.keyMap = {};
@@ -114,7 +114,7 @@ function physicsLoopUpdate(){
 }
 
 function applyPlayerData(player){
-  var p = foo.players.find(p => p._id === player.id);
+  var p = foo.players.get(player.id);
   if(!p){
     return;
   }
@@ -125,7 +125,7 @@ function applyPlayerData(player){
 }
 
 function applyBatchPlayerData(data){
-  data.players.forEach(player => {
+  data.players.forEach((player) => {
     applyPlayerData(player);
     if(player.id === foo.thisPlayer._id) {
       foo.pendingInputs.forEach((input, i) => {
@@ -145,15 +145,16 @@ function thisPlayerJoined(data){
 }
 
 function createNewPlayer(data){
-  let player = foo.players.find(p => p._id === data.id) !== undefined;
+  // let player = foo.players.find(p => p._id === data.id) !== undefined;
+  let player = foo.players.get(data.id);
 
   if(!player){
     console.log('new player joined');
-    player = foo.createEntity(100, 100, true);
+    player = foo.createEntity(100, 100, !data.ai);
     player._id = data.id;
     player._x = player.x;
     player._y = player.y;
-    foo.players.push(player);
+    foo.players.set(player._id,player);
     foo.stage.addChild(player);
   }
 
@@ -161,11 +162,7 @@ function createNewPlayer(data){
 }
 
 function removePlayer(data) {
-  let player = foo.players.findIndex(p => p._id === data.id);
-  if(player !== -1){
-    foo.stage.removeChild(foo.players[player]);
-    foo.players.splice(player, 1);
-  }
+  players.delete(data.id);
 }
 
 setupInput();
